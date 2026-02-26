@@ -1,1 +1,12 @@
-node_modules
+# dependencies
+**/node_modules/
+
+# builds
+**/dist/
+**/.vite/
+**/.turbo/
+**/.cache/
+
+# env
+**/.env
+**/.env.*
