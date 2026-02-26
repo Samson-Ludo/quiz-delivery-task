@@ -4,6 +4,8 @@ A small real time quiz delivery system that guarantees every connected client re
 
 The system uses sequence numbers, per client acknowledgements, and a reconciliation endpoint to recover missed messages.
 
+![alt text](image.png)
+
 ---
 
 # Architecture Overview
@@ -28,30 +30,43 @@ Client responsibilities
 
 # Project Structure
 
-```
+```text
 quiz-delivery-task
-│
-├─ server
-│  └─ src
-│     ├─ index.ts
-│     ├─ routes
-│     │  ├─ reconcile.ts
-│     │  └─ health.ts
-│     ├─ realtime
-│     │  └─ socket.ts
-│     └─ quiz
-│        ├─ session.ts
-│        ├─ ackStore.ts
-│        └─ questionBank.ts
-│
-├─ client
-│  └─ src
-│     ├─ index.html
-│     ├─ main.ts
-│     ├─ api.ts
-│     └─ storage.ts
-│
-└─ README.md
+|
+|-- server
+|   |-- package.json
+|   |-- tsconfig.json
+|   `-- src
+|       |-- index.ts
+|       |-- config.ts
+|       |-- routes
+|       |   |-- reconcile.ts
+|       |   |-- health.ts
+|       |   `-- questions.ts
+|       |-- realtime
+|       |   `-- socket.ts
+|       |-- quiz
+|       |   |-- session.ts
+|       |   |-- ackStore.ts
+|       |   |-- questionBank.ts
+|       |   `-- types.ts
+|       `-- utils
+|           |-- validate.ts
+|           `-- logger.ts
+|
+|-- client
+|   |-- package.json
+|   |-- tsconfig.json
+|   |-- vite.config.ts
+|   `-- src
+|       |-- index.html
+|       |-- styles.css
+|       |-- main.ts
+|       |-- api.ts
+|       |-- storage.ts
+|       `-- types.ts
+|
+`-- README.md
 ```
 
 ---
@@ -70,7 +85,7 @@ If a client receives `seq 4` after `seq 2`, a warning is logged.
 Reconciliation
 Clients that reconnect request missed questions from:
 
-```
+```http
 GET /reconcile?clientId=XXX&lastSeq=N
 ```
 
@@ -88,7 +103,7 @@ Node 18 or newer
 
 ### Start server
 
-```
+```bash
 cd server
 npm install
 npm run dev
@@ -96,7 +111,7 @@ npm run dev
 
 Server runs on
 
-```
+```text
 http://localhost:3001
 ```
 
@@ -106,13 +121,13 @@ http://localhost:3001
 
 Open a second terminal
 
-```
+```bash
 cd client
 npm install
 npm run dev
 ```
 
-Open the provided local URL in your browser.
+Open the provided local URL in your browser (`http://localhost:5173`).
 
 ---
 
@@ -175,10 +190,10 @@ Duplicate safety: Client ignores already seen seq
 
 ## Why this design works
 
-• No question is lost
-• Reconnects are safe
-• Clients detect gaps immediately
-• Server remains simple and deterministic
+- No question is lost
+- Reconnects are safe
+- Clients detect gaps immediately
+- Server remains simple and deterministic
 
 This is the same pattern used by many real time systems.
 
@@ -206,7 +221,7 @@ Console will log gap warnings.
 
 # Example Question Flow
 
-```
+```text
 Server emits question seq 1
 Client receives
 Client ACK seq 1
@@ -226,9 +241,10 @@ Client catches up
 
 # Optional Enhancements Included
 
-- LaTeX question rendering
+- LaTeX question rendering (KaTeX CDN with plain text fallback)
 - Two client simulation
 - Health endpoint for quick verification
+- Manual question injection endpoint (`POST /questions`)
 
 ---
 
@@ -246,5 +262,20 @@ This mirrors patterns used in production messaging systems.
 
 Install dependencies and run two commands.
 No database or external services required.
+
+---
+
+# Code-Accurate Implementation Details
+
+- Auto dispatch starts about 1.2 seconds after server start, then runs every 5500 ms.
+- Sample bank contains 8 questions, including one question with a LaTeX expression.
+- Reconcile calculation is `sinceSeq = max(lastSeq, ackStore.getAck(clientId))` and returns `quizSession.getAfter(sinceSeq)`.
+- ACK store keeps highest acknowledged seq per client (`Map<clientId, highestAckSeq>`).
+- Client emits `client:ack` for both realtime and recovered questions.
+- Gap warning string is:
+  `WARNING: Gap detected - expected seq X, received seq Y`
+- Recovered questions are rendered in ascending sequence order and tagged `Recovered` briefly.
+- Client identity is stable per browser tab session and persisted in localStorage using a tab-scoped key.
+- Server startup now handles `EADDRINUSE` with a clear warning and exits cleanly.
 
 ---
