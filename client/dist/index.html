@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quiz Delivery Client</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Space+Grotesk:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"
+      integrity="sha384-n8MVd4RsNIU0kL0Rn3fH4S7NA2szJYFfQxJ5Y+uP6Jmri8OZXbHP2Pq7L4tNn1I7"
+      crossorigin="anonymous"
+    />
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"
+      integrity="sha384-7zkQ1Fi4G1x8Mt4DccnE9vrFica8FWHQrFMizxgxYkWwaP42gnikIze8ih/7gToY"
+      crossorigin="anonymous"
+    ></script>
+    <script type="module" crossorigin src="/assets/index-DunDuXCk.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-TibtwiIS.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="app-header">
+        <div>
+          <h1>Realtime Quiz Delivery</h1>
+          <p>Reliable sequence + ACK + reconcile demo</p>
+        </div>
+        <div class="status-grid">
+          <div class="status-item">
+            <span class="label">Client ID</span>
+            <code id="client-id">-</code>
+          </div>
+          <div class="status-item">
+            <span class="label">Connection</span>
+            <span id="connection-status" class="pill disconnected">Disconnected</span>
+          </div>
+          <div class="status-item">
+            <span class="label">Last Seq Seen</span>
+            <strong id="last-seq-seen">0</strong>
+          </div>
+        </div>
+      </header>
+
+      <section id="gap-alerts" class="gap-alerts" aria-live="polite"></section>
+
+      <main>
+        <section id="question-list" class="question-list"></section>
+      </main>
+    </div>
+
+  </body>
+</html>
